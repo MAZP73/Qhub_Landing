@@ -53,7 +53,7 @@ function EndpointDoc({ ep }: { ep: Endpoint }) {
             </>
           )}
         </div>
-        <div className="flex min-w-0 flex-col gap-4 xl:sticky xl:top-20 xl:self-start">
+        <div className="flex min-w-0 flex-col gap-4 xl:self-start xl:[@media(min-height:720px)]:sticky xl:[@media(min-height:720px)]:top-20">
           <CodeBlock samples={samples} title="Ejemplo de petición" />
           <CodeBlock samples={[{ lang: 'json', code: responseSample(ep) }]} title={`Respuesta · ${ep.status} ${STATUS_TEXT[ep.status] ?? ''}`} />
           <p className="t-caption m-0 text-text-secondary">Los datos de los ejemplos son ilustrativos.</p>

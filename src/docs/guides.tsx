@@ -5,6 +5,8 @@ import { CodeBlock } from '@/components/CodeBlock';
 import { Notice } from '@/components/ui';
 import { ERRORS } from './spec';
 import { Md } from './ctx';
+import { guideSamples } from './samples';
+import { CLIENTS } from './clients';
 
 export const H2 = ({ children, id }: { children: ReactNode; id?: string }) => <h2 id={id} className="t-h3 mb-3 mt-10 scroll-mt-20 border-t border-border-subtle pt-8 font-semibold first:mt-0 first:border-0 first:pt-0">{children}</h2>;
 export const P = ({ children }: { children: ReactNode }) => <p className="t-body-long my-3 max-w-[70ch] text-text-secondary">{children}</p>;
@@ -53,17 +55,57 @@ export const GUIDES: Guide[] = [
     id: 'inicio-rapido', title: 'Inicio rápido', lead: 'De cero a tu primer turno en cuatro pasos.',
     render: () => (
       <>
-        <P>Necesitas una cuenta de API (créala desde <Link to="/acceso?tipo=dev&modo=registro">aquí</Link>). Los ejemplos usan cURL; en cada endpoint tienes también JavaScript y Python. Tu API key va directo en cada petición.</P>
+        <P>Necesitas una cuenta de API (créala desde <Link to="/acceso?tipo=dev&modo=registro">aquí</Link>). Elige tu lenguaje en las pestañas de cualquier ejemplo: la elección se aplica a toda la documentación. Tu API key va directo en cada petición. Para dejar todo bien configurado (variables de entorno y un cliente reutilizable), mira la guía <Link to="/dev/docs/configuracion">Configuración</Link>.</P>
         <H2>1. Genera tu API key</H2>
         <P>Inicia sesión en tu <Link to="/dev">panel</Link> y pulsa «Generar API key». Cópiala (se muestra una sola vez) y guárdala en una variable de entorno:</P>
         <CodeBlock samples={[{ lang: 'curl', code: 'export QHUB_API_KEY="pega-aquí-tu-api-key"' }]} title="Terminal" />
         <H2>2. Crea una cola</H2>
-        <CodeBlock samples={[{ lang: 'curl', code: `curl -X POST "${API_BASE}/colas" \\\n  -H "Authorization: Bearer $QHUB_API_KEY" \\\n  -H "X-Usuario-Id: admin-1" \\\n  -H "X-Usuario-Rol: admin" \\\n  -H "Content-Type: application/json" \\\n  -d '{"nombre":"Atención al cliente"}'` }]} />
+        <CodeBlock samples={guideSamples('POST', '/colas', { userId: 'admin-1', role: 'admin', body: { nombre: 'Atención al cliente' } })} />
         <H2>3. Define su horario</H2>
-        <CodeBlock samples={[{ lang: 'curl', code: `curl -X PUT "${API_BASE}/colas/<cola_id>/horario" \\\n  -H "Authorization: Bearer $QHUB_API_KEY" \\\n  -H "X-Usuario-Id: admin-1" \\\n  -H "X-Usuario-Rol: admin" \\\n  -H "Content-Type: application/json" \\\n  -d '{"hora_apertura":"08:00:00","hora_cierre":"17:00:00","duracion_franja_minutos":60,"dias_atencion":[1,2,3,4,5],"duracion_turno_minutos":15,"dias_anticipacion_maxima":14,"zona_horaria":"America/Guayaquil"}'` }]} />
+        <CodeBlock samples={guideSamples('PUT', '/colas/<cola_id>/horario', { userId: 'admin-1', role: 'admin', body: { hora_apertura: '08:00:00', hora_cierre: '17:00:00', duracion_franja_minutos: 60, dias_atencion: [1, 2, 3, 4, 5], duracion_turno_minutos: 15, dias_anticipacion_maxima: 14, zona_horaria: 'America/Guayaquil' } })} />
         <H2>4. Saca un turno</H2>
-        <CodeBlock samples={[{ lang: 'curl', code: `curl -X POST "${API_BASE}/turnos" \\\n  -H "Authorization: Bearer $QHUB_API_KEY" \\\n  -H "X-Usuario-Id: cliente-123" \\\n  -H "X-Usuario-Rol: cliente" \\\n  -H "Content-Type: application/json" \\\n  -d '{"cola_id":"<cola_id>"}'` }]} />
+        <CodeBlock samples={guideSamples('POST', '/turnos', { userId: 'cliente-123', role: 'cliente', body: { cola_id: '<cola_id>' } })} />
         <Notice kind="info" title="¿Prefieres probar sin escribir código?">En tu <Link to="/dev/probar">probador</Link> puedes llamar a cualquier endpoint desde el navegador con tu sesión ya puesta.</Notice>
+      </>
+    ),
+  },
+  {
+    id: 'configuracion', title: 'Configuración', lead: 'Deja tu proyecto listo para hablar con Qhub: variables de entorno, URL base, headers y un cliente reutilizable.',
+    render: () => (
+      <>
+        <P>Todo lo que tu sistema necesita para integrarse son <b>tres datos</b>. Guárdalos como configuración (variables de entorno), no escritos en el código:</P>
+        <Table head={['Variable', 'Qué es', 'Valor']} rows={[
+          [<Code key="1">QHUB_API_KEY</Code>, <>Tu API key permanente. La generas en tu <Link to="/dev">panel</Link>.</>, 'Obligatoria. Secreta.'],
+          [<Code key="2">QHUB_API_URL</Code>, 'URL base de la API.', <Code key="u">{API_BASE}</Code>],
+          [<><Code>X-Usuario-Id</Code> y <Code>X-Usuario-Rol</Code></>, 'Quién actúa en tu sistema y con qué rol. Cambian en cada petición.', <>Los pone tu código. Ver <Link to="/dev/docs/autenticacion#headers">Usuario y rol</Link>.</>],
+        ]} />
+        <H2>1. Define las variables de entorno</H2>
+        <Table head={['Dónde', 'Cómo']} rows={[
+          ['Linux / macOS (terminal)', <Code key="1">export QHUB_API_KEY="tu-api-key"</Code>],
+          ['Windows (PowerShell)', <Code key="2">setx QHUB_API_KEY "tu-api-key"</Code>],
+          ['Archivo .env', <>Una línea por variable (ver abajo). Añade <Code>.env</Code> a tu <Code>.gitignore</Code>.</>],
+          ['Docker / Compose', <><Code>environment:</Code> o <Code>--env-file .env</Code></>],
+          ['Hosting (Vercel, Render, Railway…)', 'Sección «Environment Variables» del proyecto. Vuelve a desplegar después de cambiarlas.'],
+        ]} />
+        <CodeBlock samples={[{ lang: 'http', code: `# .env  (no lo subas a git)\nQHUB_API_KEY=pega-aquí-tu-api-key\nQHUB_API_URL=${API_BASE}` }]} title=".env" />
+        <Notice kind="warning" title="La API key es secreta">Úsala solo desde tu servidor o backend. Nunca la pongas en una app móvil, en JavaScript de una página ni en un repositorio público. Si se filtra, rótala o revócala desde tu panel.</Notice>
+        <H2>2. Prepara un cliente reutilizable</H2>
+        <P>Este archivo lee la configuración del entorno, añade los headers por ti y lanza un error claro cuando la API responde 4xx o 5xx. Elige tu lenguaje y cópialo a tu proyecto; después solo llamas a <Code>qhub(...)</Code>.</P>
+        <CodeBlock samples={CLIENTS} title="Cliente reutilizable" />
+        <H2>3. Ajustes que conviene dejar puestos</H2>
+        <UL>
+          <Li><b>Timeout de 60 segundos.</b> Si la API estuvo inactiva puede tardar en responder la primera vez. Ya viene en los clientes de arriba.</Li>
+          <Li><b>Reintentos solo en 429 y 5xx</b>, con espera creciente. Los 4xx son errores de tu petición: repetirlos no los arregla.</Li>
+          <Li><b>Zona horaria.</b> Se define por cola con <Code>PUT /colas/{'{cola_id}'}/horario</Code> (por ejemplo <Code>America/Guayaquil</Code>). Las fechas de la API vienen en UTC.</Li>
+          <Li><b>Identidad.</b> Usa un <Code>X-Usuario-Id</Code> estable por persona (tu id de usuario o su correo) para que sus turnos y avisos queden asociados.</Li>
+          <Li><b>Entornos.</b> Usa una API key distinta para pruebas y para producción, y cámbiala solo con la variable de entorno.</Li>
+        </UL>
+        <H2>4. Comprueba que funciona</H2>
+        <P>Con las variables definidas, esta llamada debe devolver <Code>200</Code> y la lista de tus colas (vacía si aún no creaste ninguna):</P>
+        <CodeBlock samples={guideSamples('GET', '/colas', { userId: 'admin-1', role: 'admin' })} title="Probar la conexión" />
+        <Notice kind="info" title="Errores comunes">
+          <Code>401</Code>: la API key falta, está mal copiada o fue revocada. <Code>403</Code>: el rol de <Code>X-Usuario-Rol</Code> no permite esa acción. <Code>422</Code>: algún dato del cuerpo no cumple el formato. Más en <Link to="/dev/docs/errores">Errores</Link>.
+        </Notice>
       </>
     ),
   },
@@ -73,11 +115,7 @@ export const GUIDES: Guide[] = [
       <>
         <H2 id="credenciales">Tu API key</H2>
         <P>Tu credencial es la <b>API key</b> de tu cuenta: una llave que <b>no vence</b> y que mandas directamente en cada petición. Se genera una vez en tu <Link to="/dev">panel</Link> (inicias sesión y confirmas tu contraseña; se muestra una sola vez). No hay que pedir tokens.</P>
-        <CodeBlock samples={[
-          { lang: 'curl', code: `curl "${API_BASE}/colas" \\\n  -H "Authorization: Bearer $QHUB_API_KEY" \\\n  -H "X-Usuario-Id: admin-1" \\\n  -H "X-Usuario-Rol: admin"` },
-          { lang: 'js', code: `const res = await fetch("${API_BASE}/colas", {\n  headers: {\n    Authorization: \`Bearer \${process.env.QHUB_API_KEY}\`,\n    "X-Usuario-Id": "admin-1",\n    "X-Usuario-Rol": "admin",\n  },\n});\nconsole.log(await res.json());` },
-          { lang: 'python', code: `import os, requests\n\nres = requests.get(\n    "${API_BASE}/colas",\n    headers={\n        "Authorization": f"Bearer {os.environ['QHUB_API_KEY']}",\n        "X-Usuario-Id": "admin-1",\n        "X-Usuario-Rol": "admin",\n    },\n)\nprint(res.json())` },
-        ]} title="Llamar a la API con tu API key" />
+        <CodeBlock samples={guideSamples('GET', '/colas', { userId: 'admin-1', role: 'admin' })} title="Llamar a la API con tu API key" />
         <P>También vale el header <Code>X-Api-Key: &lt;API key&gt;</Code> en lugar de <Code>Authorization: Bearer</Code>. Funciona igual en los endpoints REST y en el WebSocket.</P>
         <Notice kind="warning" title="Cuida tu API key">Equivale a una contraseña que no caduca: guárdala en una variable de entorno o gestor de secretos y úsala solo desde tu servidor, nunca en el código ni en apps o páginas que ejecuten tus clientes. Si se filtra, rótala o revócala desde el panel: deja de funcionar de inmediato.</Notice>
         <H2 id="token">Token de sesión (opcional)</H2>

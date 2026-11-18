@@ -1,17 +1,25 @@
-import { useState } from 'react';
+import { useState, useSyncExternalStore } from 'react';
 import { cx } from '@/lib/cx';
 import { Icon } from './ui';
 
-export type Lang = 'curl' | 'js' | 'python' | 'json' | 'http';
-export const LANG_LABEL: Record<Lang, string> = { curl: 'cURL', js: 'JavaScript', python: 'Python', json: 'JSON', http: 'HTTP' };
+export type Lang = 'curl' | 'js' | 'python' | 'java' | 'csharp' | 'go' | 'php' | 'ruby' | 'json' | 'http';
+export const LANG_LABEL: Record<Lang, string> = { curl: 'cURL', js: 'JavaScript', python: 'Python', java: 'Java', csharp: 'C#', go: 'Go', php: 'PHP', ruby: 'Ruby', json: 'JSON', http: 'HTTP' };
+
+/** Lenguaje elegido: vale para todos los bloques de código de la documentación y se recuerda en el navegador. */
+const LANG_KEY = 'qhub.docs.lang';
+let pref: Lang | null = null;
+const subs = new Set<() => void>();
+try { const v = localStorage.getItem(LANG_KEY) as Lang | null; if (v && v in LANG_LABEL) pref = v; } catch { /* sin storage */ }
+function setPref(l: Lang) { pref = l; try { localStorage.setItem(LANG_KEY, l); } catch { /* sin storage */ } subs.forEach((f) => f()); }
+const usePref = () => useSyncExternalStore((f) => { subs.add(f); return () => { subs.delete(f); }; }, () => pref, () => null);
 
 const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-const KW = /\b(const|let|await|async|import|from|return|print|def|if|new|true|false|null|None|True|False)\b/g;
+const KW = /\b(const|let|var|await|async|import|from|return|print|def|if|new|true|false|null|None|True|False|public|class|static|void|throws|package|func|using|require|puts|echo|defer|panic|nil)\b/g;
 
 /** Resaltado mínimo (cadenas, comentarios, números, palabras clave) sin dependencias. */
 export function highlight(code: string, lang: Lang): string {
   const out: string[] = [];
-  const re = /(\/\/[^\n]*|#[^\n]*)|("(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|`(?:\\.|[^`\\])*`)|(\b\d+(?:\.\d+)?\b)/g;
+  const re = /((?<!:)\/\/[^\n]*|#[^\n]*)|("(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|`(?:\\.|[^`\\])*`)|(\b\d+(?:\.\d+)?\b)/g;
   let last = 0; let m: RegExpExecArray | null;
   const plain = (t: string) => (lang === 'json' || lang === 'http' ? esc(t) : esc(t).replace(KW, '<span class="tok-k">$1</span>'));
   while ((m = re.exec(code))) {
@@ -43,15 +51,18 @@ export interface Sample { lang: Lang; code: string }
 
 /** Bloque de código con pestañas por lenguaje y botón de copiar. */
 export function CodeBlock({ samples, title, copyText }: { samples: Sample[]; title?: string; copyText?: (s: Sample) => string }) {
-  const [i, setI] = useState(0);
-  const cur = samples[Math.min(i, samples.length - 1)]!;
+  const chosen = usePref();
+  const [local, setLocal] = useState(0);
+  const byPref = chosen ? samples.findIndex((x) => x.lang === chosen) : -1;
+  const i = byPref >= 0 ? byPref : Math.min(local, samples.length - 1);
+  const cur = samples[i]!;
   return (
     <figure className="code-surface m-0 overflow-hidden rounded-sm border border-border-subtle">
       <div className="flex items-center justify-between border-b border-white/10 pl-1 pr-1">
-        <div role="tablist" aria-label={title ?? 'Lenguaje'} className="flex">
+        <div role="tablist" aria-label={title ?? 'Lenguaje'} className="flex min-w-0 overflow-x-auto">
           {samples.length > 1 ? samples.map((s, k) => (
-            <button key={s.lang} role="tab" aria-selected={k === i} type="button" onClick={() => setI(k)}
-              className={cx('cursor-pointer border-0 border-b-2 bg-transparent px-3 py-2 text-xs', k === i ? 'border-b-brand-mint text-white' : 'border-b-transparent text-[#9aa0b8] hover:text-white')}>{LANG_LABEL[s.lang]}</button>
+            <button key={s.lang} role="tab" aria-selected={k === i} type="button" onClick={() => { setLocal(k); setPref(s.lang); }}
+              className={cx('shrink-0 cursor-pointer border-0 border-b-2 bg-transparent px-3 py-2 text-xs', k === i ? 'border-b-brand-mint text-white' : 'border-b-transparent text-[#9aa0b8] hover:text-white')}>{LANG_LABEL[s.lang]}</button>
           )) : <span className="px-3 py-2 text-xs text-[#9aa0b8]">{title ?? LANG_LABEL[cur.lang]}</span>}
         </div>
         <CopyButton text={() => (copyText ? copyText(cur) : cur.code)} />

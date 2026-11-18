@@ -66,7 +66,7 @@ export function DevLayout() {
           </div>
         </header>
         <div className="flex flex-1">
-          <aside className={cx('fixed inset-y-14 left-0 z-20 w-[280px] overflow-y-auto bg-sidebar-bg lg:sticky lg:top-14 lg:block lg:h-[calc(100vh-56px)]', open ? 'block' : 'hidden')}>{nav}</aside>
+          <aside className={cx('fixed inset-y-14 left-0 z-20 w-[280px] overflow-y-auto bg-sidebar-bg lg:sticky lg:top-14 lg:block lg:h-[calc(100dvh-56px)] lg:[@media(max-height:480px)]:static lg:[@media(max-height:480px)]:h-auto', open ? 'block' : 'hidden')}>{nav}</aside>
           <main id="contenido" className="min-w-0 flex-1 px-6 py-8 lg:px-12">
             <div className="mx-auto max-w-[1100px]">
               {session && (
