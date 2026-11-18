@@ -1,0 +1,30 @@
+@import 'tailwindcss';
+@import './tokens.css';
+@import './theme.css';
+
+@layer base {
+  html, body, #root { min-height: 100%; }
+  html { scroll-behavior: smooth; scroll-padding-top: 72px; }
+  body { @apply bg-background text-text-primary font-sans text-[14px] leading-5 antialiased; letter-spacing: 0.16px; }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 0; }
+  a { @apply text-link; }
+  select { appearance: none; }
+  select, option { background-color: var(--layer-01); color: var(--text-primary); }
+}
+
+@keyframes live-pulse { from { opacity: 0.4; } to { opacity: 1; } }
+@utility animate-live { animation: live-pulse 1.2s ease-in-out infinite alternate; }
+@media (prefers-reduced-motion: reduce) { .animate-live { animation: none; } html { scroll-behavior: auto; } }
+
+/* Logo: versión clara y negativa siguen el tema. */
+.qh-logo-dark { display: none; }
+:root[data-theme='dark'] .qh-logo-light { display: none; }
+:root[data-theme='dark'] .qh-logo-dark { display: inline-flex; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .qh-logo-light { display: none; }
+  :root:not([data-theme='light']) .qh-logo-dark { display: inline-flex; }
+}
+
+/* Bloques de código: siempre sobre fondo ink, en ambos temas. */
+.code-surface { background: #0a0d22; color: #e6e8f2; }
+.tok-k { color: #8c98ff; } .tok-s { color: #5eead4; } .tok-c { color: #7a809c; } .tok-n { color: #ffb020; }
