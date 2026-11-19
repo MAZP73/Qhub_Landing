@@ -75,7 +75,10 @@ export function DevAccess() {
   return (
     <div className="grid min-h-screen grid-cols-1 md:grid-cols-[2fr_3fr]">
       <main id="contenido" className="flex min-h-screen flex-col bg-layer-01 px-6 py-8 sm:px-12 md:px-16">
-        <Link to="/" aria-label="Qhub, inicio" className="inline-flex self-start"><Logo height={32} /></Link>
+        <div className="flex items-center justify-between gap-4">
+          <Link to="/" aria-label="Qhub, inicio" className="inline-flex"><Logo height={32} /></Link>
+          <Link to="/" className="inline-flex items-center gap-1 no-underline"><Icon name="chevron-left" />Volver al inicio</Link>
+        </div>
         <form className="my-auto flex w-full max-w-[460px] flex-col gap-4 py-10" onSubmit={(e) => void submit(e)} noValidate aria-label={TITLE[mode]}>
           <div>
             <span className="t-label mb-3 inline-flex items-center gap-2 bg-layer-02 px-2 py-1 text-text-secondary"><Icon name="code" />Cuenta de desarrollador · solo API</span>

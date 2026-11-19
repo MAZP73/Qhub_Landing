@@ -53,6 +53,7 @@ export function DevLayout() {
         <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-border-subtle bg-layer-01 px-4">
           <button type="button" className="inline-flex size-10 cursor-pointer items-center justify-center border-0 bg-transparent text-text-primary lg:hidden" aria-label="Menú de documentación" aria-expanded={open} onClick={() => setOpen((v) => !v)}><Icon name={open ? 'close' : 'menu'} size={20} /></button>
           <Link to="/" aria-label="Qhub, inicio" className="inline-flex"><Logo height={26} /></Link>
+          <Link to="/" className="hidden items-center gap-1 whitespace-nowrap no-underline sm:inline-flex"><Icon name="chevron-left" />Volver al inicio</Link>
           <span className="t-label hidden bg-layer-02 px-2 py-1 text-text-secondary sm:inline">API · Desarrolladores</span>
           <div className="ml-auto flex items-center gap-3">
             <span className="hidden sm:block"><Status /></span>
