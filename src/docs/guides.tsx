@@ -7,6 +7,7 @@ import { ERRORS } from './spec';
 import { Md } from './ctx';
 import { guideSamples } from './samples';
 import { CLIENTS } from './clients';
+import { AiGuide } from './AiGuide';
 
 export const H2 = ({ children, id }: { children: ReactNode; id?: string }) => <h2 id={id} className="t-h3 mb-3 mt-10 scroll-mt-20 border-t border-border-subtle pt-8 font-semibold first:mt-0 first:border-0 first:pt-0">{children}</h2>;
 export const P = ({ children }: { children: ReactNode }) => <p className="t-body-long my-3 max-w-[70ch] text-text-secondary">{children}</p>;
@@ -44,6 +45,7 @@ export const GUIDES: Guide[] = [
         </UL>
         <H2>Siguientes pasos</H2>
         <UL>
+          <Li><Link to="/dev/docs/integrar-con-ia">Integrar con IA</Link>: descarga un <Code>.md</Code> y dáselo a tu asistente para integrar la API fácil.</Li>
           <Li><Link to="/dev/docs/inicio-rapido">Inicio rápido</Link>: tu primer turno en cuatro pasos.</Li>
           <Li><Link to="/dev/docs/autenticacion">Autenticación</Link>: cómo funcionan el token y los headers.</Li>
           <Li><Link to="/dev/docs/registro">Referencia de la API</Link>: cada endpoint con ejemplos.</Li>
@@ -68,6 +70,10 @@ export const GUIDES: Guide[] = [
         <Notice kind="info" title="¿Prefieres probar sin escribir código?">En tu <Link to="/dev/probar">probador</Link> puedes llamar a cualquier endpoint desde el navegador con tu sesión ya puesta.</Notice>
       </>
     ),
+  },
+  {
+    id: 'integrar-con-ia', title: 'Integrar con IA (.md)', lead: 'Un archivo .md listo para dárselo a Claude Code, Codex o cualquier IA y que integre la API por ti.',
+    render: () => <AiGuide />,
   },
   {
     id: 'configuracion', title: 'Configuración', lead: 'Deja tu proyecto listo para hablar con Qhub: variables de entorno, URL base, headers y un cliente reutilizable.',
