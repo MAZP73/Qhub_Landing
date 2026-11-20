@@ -1,7 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { applyTheme, loadTheme, type Theme } from '@/lib/theme';
-import { PLATFORM_URL } from '@/lib/config';
+import { PLATFORM_URL, APP_URL } from '@/lib/config';
 import { useDevSession } from '@/lib/session';
 import { cx } from '@/lib/cx';
 import { ButtonLink, Icon, Logo } from './ui';
@@ -59,7 +59,7 @@ export function SiteFooter() {
           <Logo height={28} />
           <p className="m-0 max-w-[36ch] text-text-secondary">Turnos sin filas: plataforma, app móvil y API para gestionar cada fila en tiempo real.</p>
         </div>
-        <FooterCol title="Producto" links={[['Funciones', '/#funciones'], ['Cómo funciona', '/#como-funciona'], ['Plataforma web', PLATFORM_URL]]} />
+        <FooterCol title="Producto" links={[['Funciones', '/#funciones'], ['Cómo funciona', '/#como-funciona'], ['Plataforma web', PLATFORM_URL], ['App móvil (Expo Go)', APP_URL]]} />
         <FooterCol title="Desarrolladores" links={[['Panel de desarrollador', '/dev'], ['Documentación', '/dev/docs'], ['Crear cuenta de API', '/acceso?tipo=dev&modo=registro']]} />
       </div>
       <p className="t-caption m-0 border-t border-border-subtle px-6 py-4 text-center text-text-secondary">© Qhub 2026. Todos los derechos reservados.</p>
@@ -70,7 +70,7 @@ function FooterCol({ title, links }: { title: string; links: ReadonlyArray<reado
   return (
     <nav aria-label={title} className="flex flex-col gap-2">
       <h2 className="t-label m-0 uppercase text-text-secondary">{title}</h2>
-      {links.map(([l, h]) => (/^https?:/.test(h) || h.includes('#') ? <a key={l} href={h}>{l}</a> : <Link key={l} to={h}>{l}</Link>))}
+      {links.map(([l, h]) => (/^(https?|exp):/.test(h) || h.includes('#') ? <a key={l} href={h}>{l}</a> : <Link key={l} to={h}>{l}</Link>))}
     </nav>
   );
 }

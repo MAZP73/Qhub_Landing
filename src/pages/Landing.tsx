@@ -1,10 +1,10 @@
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { PLATFORM_URL } from '@/lib/config';
+import { APP_URL, EXPO_GO_ANDROID, EXPO_GO_IOS, PLATFORM_URL } from '@/lib/config';
 import type { IconName } from '@/lib/icons.generated';
 import { CodeBlock } from '@/components/CodeBlock';
 import { SiteFooter, SiteHeader } from '@/components/Chrome';
-import { ButtonLink, Eyebrow, Icon } from '@/components/ui';
+import { btn, ButtonLink, Eyebrow, Icon } from '@/components/ui';
 
 /** Fondo geométrico plano del héroe: cuadrícula y torres de fila (no figurativo). Solo tokens del design system. */
 function Backdrop() {
@@ -120,6 +120,17 @@ function Paths() {
           cta="Crear cuenta de API" to="/acceso?tipo=dev&modo=registro" kind="secondary" />
       </div>
       <p className="t-caption mt-4 text-text-secondary">Las cuentas de la plataforma y las de la API son independientes: una cuenta de desarrollador solo accede a la API.</p>
+      <div className="mt-6 flex flex-col gap-3 border border-border-subtle bg-layer-01 p-5 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
+          <p className="t-h4 m-0">¿Eres cliente? Usa la app móvil</p>
+          <p className="t-caption m-0 text-text-secondary">Instala Expo Go y abre el enlace de Qhub para sacar turno desde tu celular.</p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <a className={btn('primary', 'md')} href={APP_URL}>Abrir la app en Expo Go</a>
+          <a className={btn('secondary', 'md')} href={EXPO_GO_ANDROID}>Expo Go en Android</a>
+          <a className={btn('secondary', 'md')} href={EXPO_GO_IOS}>Expo Go en iPhone</a>
+        </div>
+      </div>
     </section>
   );
 }
